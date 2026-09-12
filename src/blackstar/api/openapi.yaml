@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: Blackstar Local Control API
+  version: 0.1.0
+servers:
+  - url: http://127.0.0.1:8765
+paths:
+  /v1/intents:
+    post:
+      summary: Submit a schema-valid BlackstarIntent for deterministic compilation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../json/blackstar_intent.v1.schema.json
+      responses:
+        "202":
+          description: Intent accepted for compilation/validation.
+        "400":
+          description: Schema-invalid intent.
+  /v1/dsp/transactions/{transaction_id}:
+    get:
+      summary: Get deterministic validation/apply evidence.
+      parameters:
+        - in: path
+          name: transaction_id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Transaction state and evidence. }
+        "404": { description: Unknown transaction. }
+  /v1/performance/lock:
+    put:
+      summary: Enter or leave Performance Lock after asset preflight.
+      responses:
+        "200": { description: Lock state changed. }
+        "409": { description: Required asset or checksum preflight failed. }
+  /v1/rollback/{rollback_token}:
+    post:
+      summary: Roll back an acknowledged DSP transaction.
+      parameters:
+        - in: path
+          name: rollback_token
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: Rollback acknowledged. }

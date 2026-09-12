@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blackstar:contracts:proposed-dsp-transaction:v1",
+  "title": "ProposedDSPTransaction v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "transaction_id",
+    "base_preset_version",
+    "parameter_changes",
+    "routing_changes",
+    "monitor_changes",
+    "safety_metadata",
+    "compiler_version",
+    "schema_version"
+  ],
+  "properties": {
+    "transaction_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "base_preset_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parameter_changes": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "routing_changes": {
+      "type": "object"
+    },
+    "monitor_changes": {
+      "type": "object"
+    },
+    "safety_metadata": {
+      "type": "object"
+    },
+    "compiler_version": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    }
+  }
+}

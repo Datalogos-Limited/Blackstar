@@ -1,0 +1,88 @@
+{
+  "ontology_version": "0.1",
+  "dimensions": {
+    "gain": {
+      "parameters": [
+        "preamp_gain",
+        "master_gain"
+      ],
+      "unit": "normalized"
+    },
+    "spectrum.warmth": {
+      "parameters": [
+        "bass",
+        "mid",
+        "treble",
+        "presence"
+      ],
+      "unit": "normalized"
+    },
+    "dynamics.sustain": {
+      "parameters": [
+        "compressor_threshold",
+        "compressor_ratio",
+        "release_ms"
+      ],
+      "unit": "mixed"
+    },
+    "space.reverb": {
+      "parameters": [
+        "reverb_mix",
+        "reverb_decay"
+      ],
+      "unit": "mixed"
+    },
+    "monitor.vocal": {
+      "parameters": [
+        "iem_vocal_gain_db"
+      ],
+      "unit": "dB"
+    }
+  },
+  "parameters": {
+    "preamp_gain": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true
+    },
+    "master_gain": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true,
+      "max_delta_per_command": 0.1
+    },
+    "bass": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true
+    },
+    "mid": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true
+    },
+    "treble": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true
+    },
+    "presence": {
+      "min": 0.0,
+      "max": 1.0,
+      "owner": "dsp",
+      "performance_mutable": true
+    },
+    "iem_vocal_gain_db": {
+      "min": -60.0,
+      "max": 12.0,
+      "owner": "monitor",
+      "performance_mutable": true,
+      "max_delta_per_command": 3.0
+    }
+  }
+}

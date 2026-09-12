@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:blackstar:contracts:blackstar-intent:v1",
+  "title": "BlackstarIntent v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "intent_id",
+    "timestamp",
+    "semantic_deltas",
+    "locks",
+    "context",
+    "confidence",
+    "requested_action",
+    "source",
+    "model_id",
+    "schema_version"
+  ],
+  "properties": {
+    "intent_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "semantic_deltas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "dimension",
+          "operation",
+          "amount"
+        ],
+        "properties": {
+          "dimension": {
+            "type": "string"
+          },
+          "operation": {
+            "enum": [
+              "increase",
+              "decrease",
+              "set"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "locks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "context": {
+      "type": "object"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "requested_action": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "model_id": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0"
+    }
+  }
+}
