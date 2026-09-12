@@ -1,0 +1,1906 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue-Thin;\f1\froman\fcharset0 Times-Bold;\f2\fswiss\fcharset0 Helvetica;
+\f3\froman\fcharset0 Times-Roman;\f4\ftech\fcharset77 Symbol;}
+{\colortbl;\red255\green255\blue255;\red19\green40\blue75;\red0\green0\blue0;\red42\green75\blue126;
+\red209\green229\blue245;\red63\green108\blue175;}
+{\*\expandedcolortbl;;\cssrgb\c9020\c21176\c36471;\cssrgb\c0\c0\c0;\cssrgb\c21176\c37255\c56863;
+\cssrgb\c85098\c91765\c96863;\cssrgb\c30980\c50588\c74118;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\margl1008\margr1008\margb936\margt936
+\deftab720
+\pard\pardeftab720\sa300\qc\partightenfactor0
+
+\f0\fs56 \cf2 \kerning1\expnd1\expndtw5
+\up0 \nosupersub \ulnone BLACKSTAR AI + LYRICPILOT\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs40 \cf3 \kerning1\expnd0\expndtw0 Technical Architecture Plan
+\fs19 \
+UML product maps \'95 Python schema \'95 database schema \'95 ML schema \'95 deployment architecture\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 \uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+\cf3 {{\NeXTGraphic pastedGraphic.png \width9500 \height2060 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 1. Combined product system context
+\fs19 \
+Architecture baseline derived from Blackstar PID v1.0, dated 29 August 2026.\
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+\cf3 \page \pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 1. Executive architecture decision\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs19 \cf3 The programme should be engineered as two independently releasable products sharing contracts, event semantics and performance-domain data, not as one tightly coupled application. Blackstar AI owns natural-language-to-safe-tone control; LyricPilot owns local sung-position tracking and display. The shared Performance Event Bus is an optional integration seam rather than a runtime dependency for either V1 product.\
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+\cf3 The core safety pattern is a two-stage authority model. Probabilistic components may interpret language, speech or acoustic evidence, but they never directly change DSP state or invent live lyric content. Blackstar commits changes only through the deterministic Tone Compiler, Validator and atomic DSP bridge. LyricPilot commits display movement only through constrained Song Map candidates, jump protection and a tracking state machine.\
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 2. Architecture principles and non-functional constraints\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Principle
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Engineering consequence
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Primary control
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Local-first show operation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone No critical network dependency; required assets preflighted and frozen
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Performance Lock + checksum manifest
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Probabilistic / deterministic separation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ML output is evidence or structured intent, not stage authority
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Compiler/Validator or Position state machine
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Independent fail-safe domains
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone AI host failure must not interrupt guitar audio/manual controls
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone DSP + MCU separation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Schema-first integration
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Every boundary has a versioned typed contract
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone performance-contracts repository
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Observable by design
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Every state change has timestamps, versions and correlation IDs
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone append-only event log + replay bundle
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Fail useful
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Hold known-good tone/lyrics rather than guess
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone rollback / HOLD / MANUAL modes
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Version everything
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Models, ontology, Song Maps, presets, corpus and event contracts are immutable versions
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone hashes + manifests + migration policy
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs36 \cf4 3. UML product maps\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs26 \cf6 3.1 Blackstar AI component map\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 1__#$!@%!#__pastedGraphic.png \width9500 \height2140 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 2. Blackstar AI logical component architecture
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 The guitar audio path remains entirely inside the real-time DSP domain. The M5-class host handles asynchronous speech and intent processing. A fast command lane bypasses heavyweight inference for known stage commands. Both free-form intent and fast commands converge on deterministic validation before any typed transaction reaches the DSP.\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs26 \cf6 3.2 LyricPilot component map\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 2__#$!@%!#__pastedGraphic.png \width9500 \height1760 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 3. LyricPilot logical component architecture
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 LyricPilot is a constrained state-estimation product. Speech text is just one feature; it never directly drives the display. PositionCore considers a bounded candidate window in the approved Song Map, fuses multiple evidence scores and only emits a committed PositionDecision after state-machine and jump-safety logic.\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs26 \cf6 3.3 Shared performance-domain class model\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 3__#$!@%!#__pastedGraphic.png \width9500 \height1560 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 4. UML-style shared domain class model
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs26 \cf6 3.4 Blackstar command sequence\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 4__#$!@%!#__pastedGraphic.png \width5480 \height11200 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 5. Blackstar intent-to-DSP sequence
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs26 \cf6 \page \pard\pardeftab720\sl276\slmult1\partightenfactor0
+\cf6 3.5 LyricPilot tracking sequence\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 5__#$!@%!#__pastedGraphic.png \width4900 \height12340 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\
+\pard\pardeftab720\sl276\slmult1\sa480\qc\partightenfactor0
+
+\fs16 \cf3 Figure 6. LyricPilot feature-to-display sequence
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 4. High-level Python code schema\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs19 \cf3 Python is proposed for the shared contracts, POC orchestration, evaluation harnesses, simulators and ML adapters. Production LyricPilot remains native Swift/SwiftUI, while production DSP/MCU code remains in the appropriate real-time/embedded languages. The Python schema below defines domain boundaries rather than prescribing the final implementation language of every component.\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Package
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Responsibility
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Key interfaces/classes
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone contracts
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Versioned domain DTOs and JSON/protobuf compatibility
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone BlackstarIntent, ProposedDSPTransaction, ValidationResult, PerformanceEvent
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone speech
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Wake/VAD/STT adapters and replay providers
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone WakeDetector, SpeechRecognizer, FeatureFrame
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone intent
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Model-agnostic intent adapters
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone IntentAdapter.interpret()
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone tone_ontology
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Dimensions, aliases, units, constraints, locks
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone OntologyRepository
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone tone_compiler
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Pure deterministic compilation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ToneCompiler.compile()
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone validator
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Safety and Performance Mode policy authority
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Validator.validate()
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone dsp_bridge
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Atomic apply/rollback, simulator and telemetry
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone DSPBridge.apply_atomic()
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone performance_domain
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Gig/setlist/song/section aggregate and manifests
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone GigPackage, PerformanceLock
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone event_store
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Append-only events, snapshots, undo/restore
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone EventStore
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone position_core
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Candidate scoring, transition model, state machine
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone CandidateScorer, PositionCore
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone evaluation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Corpus replay, metrics and gate reports
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ReplayRunner, MetricCalculator
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs19 \cf3 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 \
+\pard\pardeftab720\li216\sl276\slmult1\partightenfactor0
+
+\fs14 \cf3 from __future__ import annotations\
+from dataclasses import dataclass, field\
+from enum import Enum\
+from typing import Protocol, Sequence, Mapping, Any\
+from uuid import UUID\
+from datetime import datetime\
+\
+class TrackingState(str, Enum):\
+    TRACKING = "tracking"\
+    UNCERTAIN = "uncertain"\
+    LOST = "lost"\
+    MANUAL = "manual"\
+\
+@dataclass(frozen=True)\
+class SemanticDelta:\
+    dimension: str       # gain, spectrum, dynamics, space, monitor, etc.\
+    operation: str       # increase/decrease/set\
+    amount: float\
+    unit: str | None = None\
+\
+@dataclass(frozen=True)\
+class BlackstarIntent:\
+    intent_id: UUID\
+    timestamp: datetime\
+    semantic_deltas: Sequence[SemanticDelta]\
+    locks: Sequence[str]\
+    context: Mapping[str, Any]\
+    confidence: float\
+    requested_action: str\
+    source: str\
+    model_id: str\
+\
+@dataclass(frozen=True)\
+class ProposedDSPTransaction:\
+    transaction_id: UUID\
+    base_preset_version: str\
+    parameter_changes: Mapping[str, float]\
+    routing_changes: Mapping[str, Any] = field(default_factory=dict)\
+    monitor_changes: Mapping[str, Any] = field(default_factory=dict)\
+    safety_metadata: Mapping[str, Any] = field(default_factory=dict)\
+    compiler_version: str = "v1"\
+\
+@dataclass(frozen=True)\
+class ValidationResult:\
+    accepted: bool\
+    violations: Sequence[str]\
+    confirmation_required: bool\
+    safe_transaction_hash: str | None\
+\
+class IntentAdapter(Protocol):\
+    def interpret(self, transcript: str, context: Mapping[str, Any]) -> BlackstarIntent: ...\
+\
+class ToneCompiler(Protocol):\
+    def compile(self, intent: BlackstarIntent, current_tone: Mapping[str, float],\
+                ontology_version: str) -> ProposedDSPTransaction: ...\
+\
+class Validator(Protocol):\
+    def validate(self, tx: ProposedDSPTransaction, policy: Mapping[str, Any]) -> ValidationResult: ...\
+\
+class DSPBridge(Protocol):\
+    def apply_atomic(self, tx: ProposedDSPTransaction) -> Mapping[str, Any]: ...\
+\
+@dataclass(frozen=True)\
+class FeatureFrame:\
+    timestamp_ms: int\
+    partial_tokens: Sequence[str]\
+    token_confidence: Sequence[float]\
+    phonetic_vector: Sequence[float]\
+    acoustic_vector: Sequence[float]\
+\
+@dataclass(frozen=True)\
+class PositionHypothesis:\
+    song_id: UUID\
+    line_id: UUID\
+    section_id: UUID\
+    confidence: float\
+    runner_up_margin: float\
+    evidence_scores: Mapping[str, float]\
+    state: TrackingState\
+    timestamp_ms: int\
+\
+@dataclass(frozen=True)\
+class PositionDecision:\
+    action: str           # advance/hold/recover/manual\
+    committed_line_id: UUID\
+    reason_code: str\
+    confidence: float\
+    timestamp_ms: int\
+\
+class CandidateScorer(Protocol):\
+    def score(self, frame: FeatureFrame, candidate: Mapping[str, Any], context: Mapping[str, Any]) -> Mapping[str, float]: ...\
+\
+class PositionCore(Protocol):\
+    def update(self, frame: FeatureFrame) -> PositionDecision: ...\
+\
+class PerformanceEventBus(Protocol):\
+\pard\pardeftab720\li216\sl276\slmult1\sa480\partightenfactor0
+\cf3     def publish(self, topic: str, payload: Mapping[str, Any], idempotency_key: str) -> None: ...\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 5. Database architecture and schemas\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs19 \cf3 SQLite is the correct POC and live local-store baseline because the PID explicitly calls for local performance operation and an event store. The logical schema separates configuration/master data, immutable live events and materialised state. If a future cloud catalogue or fleet service is added, the same identifiers and event contracts can be projected into PostgreSQL without changing the show-critical local model.\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+\cf3 {{\NeXTGraphic 6__#$!@%!#__pastedGraphic.png \width9500 \height4700 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 7. Core relational ERD
+\fs19 \
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Data zone
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Tables / objects
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Retention / mutation rule
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Performance master
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone artist_project, gig, setlist, setlist_item, song, section
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Editable only outside Performance Lock
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Blackstar tone state
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone tone_preset, preset versions, DSP transaction payloads
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Versioned; applied versions immutable
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone LyricPilot arrangement
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone song_map, song_line, line_variant, song_map_edge
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Draft -> Approved -> Locked lifecycle; no live mutation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Asset integrity
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone asset_manifest, model_bundle
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Checksummed; required assets must pass preflight
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Operational evidence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone performance_event, evaluation_run
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Append-only; correlation IDs and version metadata
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Recovery state
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone state_snapshot
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Atomic checkpoint tied to event sequence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs19 \cf3 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs26 \cf6 \page \pard\pardeftab720\sl276\slmult1\partightenfactor0
+\cf6 5.1 SQL baseline\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f3\fs19 \cf3 \
+\pard\pardeftab720\li216\sl276\slmult1\partightenfactor0
+
+\f0\fs14 \cf3 -- POC baseline: SQLite; portable to PostgreSQL if cloud/library services are added.\
+PRAGMA foreign_keys = ON;\
+\
+CREATE TABLE artist_project (\
+  artist_id TEXT PRIMARY KEY, name TEXT NOT NULL, created_at TEXT NOT NULL\
+);\
+CREATE TABLE gig (\
+  gig_id TEXT PRIMARY KEY, artist_id TEXT NOT NULL REFERENCES artist_project(artist_id),\
+  starts_at TEXT, venue TEXT, lock_state TEXT NOT NULL DEFAULT 'draft', manifest_hash TEXT\
+);\
+CREATE TABLE song (\
+  song_id TEXT PRIMARY KEY, title TEXT NOT NULL, artist_name TEXT, tempo_bpm REAL, musical_key TEXT\
+);\
+CREATE TABLE setlist (\
+  setlist_id TEXT PRIMARY KEY, gig_id TEXT NOT NULL REFERENCES gig(gig_id), version INTEGER NOT NULL\
+);\
+CREATE TABLE setlist_item (\
+  item_id TEXT PRIMARY KEY, setlist_id TEXT NOT NULL REFERENCES setlist(setlist_id),\
+  song_id TEXT NOT NULL REFERENCES song(song_id), position INTEGER NOT NULL,\
+  UNIQUE(setlist_id, position)\
+);\
+CREATE TABLE section (\
+  section_id TEXT PRIMARY KEY, song_id TEXT NOT NULL REFERENCES song(song_id),\
+  name TEXT NOT NULL, ordinal INTEGER NOT NULL\
+);\
+CREATE TABLE tone_preset (\
+  preset_id TEXT PRIMARY KEY, section_id TEXT REFERENCES section(section_id), version INTEGER NOT NULL,\
+  parameter_json TEXT NOT NULL, checksum TEXT NOT NULL\
+);\
+CREATE TABLE song_map (\
+  songmap_id TEXT PRIMARY KEY, song_id TEXT NOT NULL REFERENCES song(song_id), version INTEGER NOT NULL,\
+  lifecycle_state TEXT NOT NULL CHECK(lifecycle_state IN ('draft','approved','locked')),\
+  checksum TEXT NOT NULL, UNIQUE(song_id, version)\
+);\
+CREATE TABLE song_line (\
+  line_id TEXT PRIMARY KEY, songmap_id TEXT NOT NULL REFERENCES song_map(songmap_id),\
+  section_id TEXT NOT NULL REFERENCES section(section_id), ordinal INTEGER NOT NULL,\
+  lyric_ref TEXT NOT NULL, canonical_tokens_json TEXT, UNIQUE(songmap_id, ordinal)\
+);\
+CREATE TABLE line_variant (\
+  variant_id TEXT PRIMARY KEY, line_id TEXT NOT NULL REFERENCES song_line(line_id),\
+  variant_type TEXT NOT NULL, token_form_json TEXT NOT NULL\
+);\
+CREATE TABLE song_map_edge (\
+  from_line_id TEXT NOT NULL REFERENCES song_line(line_id),\
+  to_line_id TEXT NOT NULL REFERENCES song_line(line_id), edge_type TEXT NOT NULL,\
+  transition_weight REAL NOT NULL DEFAULT 1.0, PRIMARY KEY(from_line_id,to_line_id,edge_type)\
+);\
+CREATE TABLE asset_manifest (\
+  asset_id TEXT PRIMARY KEY, gig_id TEXT NOT NULL REFERENCES gig(gig_id), asset_type TEXT NOT NULL,\
+  local_uri TEXT NOT NULL, sha256 TEXT NOT NULL, required INTEGER NOT NULL DEFAULT 1\
+);\
+CREATE TABLE performance_event (\
+  event_id TEXT PRIMARY KEY, gig_id TEXT REFERENCES gig(gig_id), source TEXT NOT NULL,\
+  topic TEXT NOT NULL, sequence INTEGER NOT NULL, event_time TEXT NOT NULL,\
+  schema_version TEXT NOT NULL, payload_json TEXT NOT NULL, idempotency_key TEXT NOT NULL UNIQUE\
+);\
+CREATE INDEX idx_event_gig_seq ON performance_event(gig_id, sequence);\
+CREATE TABLE state_snapshot (\
+  snapshot_id TEXT PRIMARY KEY, gig_id TEXT NOT NULL REFERENCES gig(gig_id),\
+  event_sequence INTEGER NOT NULL, state_json TEXT NOT NULL, created_at TEXT NOT NULL\
+);\
+CREATE TABLE model_bundle (\
+  model_id TEXT PRIMARY KEY, model_kind TEXT NOT NULL, version TEXT NOT NULL,\
+  checksum TEXT NOT NULL, metrics_json TEXT NOT NULL, approved_at TEXT\
+);\
+CREATE TABLE evaluation_run (\
+  run_id TEXT PRIMARY KEY, model_id TEXT REFERENCES model_bundle(model_id), corpus_version TEXT NOT NULL,\
+  config_hash TEXT NOT NULL, started_at TEXT NOT NULL, metrics_json TEXT NOT NULL, passed INTEGER NOT NULL\
+\pard\pardeftab720\li216\sl276\slmult1\sa480\partightenfactor0
+\cf3 );\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 6. ML schema and MLOps architecture\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 7__#$!@%!#__pastedGraphic.png \width9500 \height1100 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 8. ML lifecycle and live authority boundary
+\fs19 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 There are two distinct ML problems and they should not share a monolithic model. Blackstar requires speech recognition plus semantic intent interpretation into a fixed schema; LyricPilot requires speech/acoustic feature extraction plus constrained position scoring. Each model bundle must be independently benchmarked, versioned and replaceable behind a stable adapter contract.\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth1860\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1728
+\clvertalc \clcbpat5 \clwWidth1880\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3456
+\clvertalc \clcbpat5 \clwWidth1860\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5184
+\clvertalc \clcbpat5 \clwWidth1860\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6912
+\clvertalc \clcbpat5 \clwWidth1860\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 ML capability
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Inputs
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Bounded output
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Live authority
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Primary metrics
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1728
+\clvertalt \clshdrawnil \clwWidth1880\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3456
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5184
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6912
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Blackstar STT / intent
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone command audio, transcript, current context
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone BlackstarIntent v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone None; compiler + validator decide
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone command accuracy, intent exact-match/F1, p95 latency, malformed/unsafe output rate
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1728
+\clvertalt \clshdrawnil \clwWidth1880\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3456
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5184
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6912
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Blackstar tone matching
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone reference audio features, tone library embeddings
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ranked candidate tones + evidence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone User auditions/saves; validator applies later
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone retrieval precision, perceptual ranking, latency
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1728
+\clvertalt \clshdrawnil \clwWidth1880\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3456
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5184
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6912
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone LyricPilot position scoring
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone partial tokens, phonetics, acoustics, timing, prior, Song Map window
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone PositionHypothesis v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone State machine + jump protection
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone readiness >=99%, p95 <=250 ms, wrong jumps <1/10h
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx1728
+\clvertalt \clshdrawnil \clwWidth1880\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx3456
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5184
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx6912
+\clvertalt \clshdrawnil \clwWidth1860\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Rehearsal adaptation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone accepted user corrections/history
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone versioned proposal/weights
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Explicit approval before lock
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone replay improvement without regression
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs19 \cf3 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+\cf3 \
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs26 \cf6 \page \pard\pardeftab720\sl276\slmult1\partightenfactor0
+\cf6 6.1 Model bundle schema\
+\pard\pardeftab720\li216\sl276\slmult1\partightenfactor0
+
+\fs14 \cf3 \{\
+  "ml_schema_version": "1.0",\
+  "principle": "Probabilistic components produce bounded evidence; deterministic authorities commit live actions.",\
+  "blackstar_intent_model": \{\
+    "inputs": [\
+      "transcript",\
+      "performance_context",\
+      "current_tone_summary"\
+    ],\
+    "outputs": "BlackstarIntent v1 only",\
+    "prohibited_outputs": [\
+      "raw DSP writes",\
+      "untyped commands"\
+    ],\
+    "metrics": [\
+      "intent exact-match",\
+      "ontology-delta F1",\
+      "unsafe-output rate",\
+      "p95 inference latency"\
+    ],\
+    "gating": "schema valid AND confidence policy satisfied; then deterministic compiler + validator"\
+  \},\
+  "lyricpilot_position_model": \{\
+    "inputs": [\
+      "partial tokens",\
+      "token timing/confidence",\
+      "phonetic features",\
+      "acoustic features",\
+      "prior position",\
+      "SongMap candidate window",\
+      "tempo/timing",\
+      "rehearsal history"\
+    ],\
+    "features": [\
+      "transcription_similarity",\
+      "phonetic_similarity",\
+      "word_order_score",\
+      "position_prior",\
+      "tempo_alignment",\
+      "history_prior",\
+      "section_distance"\
+    ],\
+    "outputs": "PositionHypothesis v1",\
+    "commit_authority": "state machine + jump-protection policy",\
+    "metrics": [\
+      "next lyric readiness >=99%",\
+      "p95 update latency <=250ms",\
+      "incorrect section jump <1/10 live hours",\
+      "zero blank screens over >=2h"\
+    ]\
+  \},\
+  "model_bundle": \{\
+    "required_metadata": [\
+      "model_id",\
+      "model_kind",\
+      "version",\
+      "checksum",\
+      "training_or_calibration_data_version",\
+      "feature_schema_version",\
+      "evaluation_metrics",\
+      "device_profile",\
+      "approval_status"\
+    ],\
+    "deployment": "local, preflighted, checksummed, frozen during Performance Lock"\
+  \}\
+\pard\pardeftab720\li216\sl276\slmult1\sa480\partightenfactor0
+\cf3 \}\
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 7. Interface and event contracts\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Contract
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Required fields
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Compatibility rule
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone BlackstarIntent v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone intent_id, timestamp, semantic_deltas, locks, context, confidence, requested_action, source, model_id
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Additive optional fields only within v1; reject unknown required semantics
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ProposedDSPTransaction v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone transaction_id, base_preset_version, parameter/routing/monitor changes, safety metadata, compiler_version
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Atomic and idempotent; base version required
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ValidationResult v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone accepted, violations, confirmation_required, safe_transaction_hash
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Only accepted result may reach apply path
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone DSPApplyResult v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone transaction_id, applied_version, ack/nack, latency_us, rollback_token
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Ack must identify immutable resulting version
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone SongMap v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone song_id, version, sections, lines, variants, aliases, graph, tempo/key, checksum
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Repeated lyrics have distinct IDs; checksum frozen in lock
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone PositionHypothesis v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone song/line/section IDs, confidence, runner-up margin, evidence scores, state, timestamp
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Candidate IDs must resolve to approved Song Map
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone PositionDecision v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone action, committed_line_id, reason_code, confidence, timestamp
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Only this event drives display reducer
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone PerformanceEvent v1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone event_id, source, topic, sequence, event_time, schema_version, payload, idempotency_key
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Consumers must be idempotent and detect gaps/out-of-order sequence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 8. High-level technical deployment architecture\uc0\u8232 \
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs19 \cf3 {{\NeXTGraphic 8__#$!@%!#__pastedGraphic.png \width9500 \height1980 \appleattachmentpadding0 \appleembedtype0 \appleaqc
+}¬}\
+\pard\pardeftab720\sl276\slmult1\sa200\qc\partightenfactor0
+
+\fs16 \cf3 Figure 9. POC / reference deployment architecture
+\fs19 \
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Node
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Runs
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Must not run
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone iPad Pro
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone LyricPilot AudioEngine, SpeechFeatures, PositionCore, Display, local DB, EventBusAdapter
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Cloud-dependent live tracking; generative lyric production
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone M5/M5 Pro host
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Blackstar speech/intent adapters, ontology, compiler, validator, event store, simulator/tools
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Real-time guitar callback
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone DSP
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone guitar processing, preset transactions, crossfade/atomic apply, telemetry
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone LLM/STT/model inference
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Control MCU
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone footswitch/MIDI fast path, watchdog, mute/recovery, safe boot
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone General-purpose AI
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Optional cloud
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone library enrichment, sync, ideation, Song Map drafting/rehearsal assistance
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Any dependency required to complete a live show action
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs19 \cf3 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 \uc0\u8232 9. Security, privacy and safety architecture\
+\pard\tx20\tx360\pardeftab720\li360\fi-360\sl276\slmult1\sa200\partightenfactor0
+\ls1\ilvl0
+\f4\fs19 \cf3 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Performance Lock is a central policy state consumed by UI, data stores, model management, command routing and validators; it rejects edits, downloads and model swaps during a show.\
+\ls1\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Local secrets use platform secure storage; sensitive database fields use encryption where appropriate; logs redact tokens and unnecessary lyric/audio content.\
+\ls1\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Every asset in a show manifest has a cryptographic checksum. Entry to Performance Lock fails closed if a required model, preset, IR, Song Map or other asset is missing or mismatched.\
+\ls1\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone DSP validation is default-deny for unknown parameters, out-of-range values, locked attributes, prohibited routing and safety-critical ownership.\
+\pard\tx20\tx360\pardeftab720\li360\fi-360\sl276\slmult1\sa480\partightenfactor0
+\ls1\ilvl0
+\f4 \cf3 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Audio capture for evaluation is opt-in and separated from operational telemetry. Replay bundles should support selective redaction/deletion while preserving engineering timing data.\
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 10. Observability and replay model\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Trace stage
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Blackstar evidence
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone LyricPilot evidence
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Input
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone wake/VAD/STT timestamp + transcript confidence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone audio buffer timestamp + input health
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Probabilistic output
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone intent model/version/confidence
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone partial tokens, feature vectors, candidate scores
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Deterministic decision
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone compiler version + explanation trace + validation result
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone state transition + jump rule + PositionDecision
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Actuation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone transaction ID + DSP ack/nack + latency + rollback token
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone display state + lead time
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Recovery
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone undo/restore event and resulting preset version
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone manual/degraded/relaunch checkpoint state
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 11. Build sequence and architecture gates\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Sprint / gate
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Architecture deliverables
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Evidence required
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Sprint 0 / G0
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Freeze v1 contracts; repos/CI; ontology v0.1; SongMap schema; DB migration 001; DSP simulator; replay corpus format
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Contract tests; ADRs; connected POC rigs; baseline latency/thermal measurements
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight600 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Sprint 1
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Blackstar text->intent stub->compiler->validator->DSP sim; LyricPilot recorded audio->features->candidate matcher->display; shared event store
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Deterministic end-to-end replay without cloud
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight580 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Sprint 2
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Local STT/model adapter; real DSP bridge; footswitch fast path; Lyric jump protection/uncertainty; USB audio; MIDI
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Preliminary KPI report + failure injection
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Sprint 3+ / G2-G3
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Musician-language benchmark; tone matching spike; live singing POC; hardening
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Formal gate report against latency, safety, readiness and wrong-jump targets
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Post-MVP / G4
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Event bus integration, hardened recovery, external display/stage system mappings
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Two-hour show tests; idempotency/out-of-order event tests
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 12. Architecture decision records\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 ADR
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Decision
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Reason
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-001
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone No generative AI in real-time audio path
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Protect latency and determinism
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-002
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Independent DSP and MCU fail-safe domains
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone AI host failure cannot interrupt core performance
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-003
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Model-agnostic, schema-validated Intent API
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Allows model replacement without widening DSP authority
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-004
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Tone Compiler is pure and deterministic
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Enables golden tests, reproducibility and explainability
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight180 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-005
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Local assets frozen during Performance Lock
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Eliminates surprise changes and cloud dependencies
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-006
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Lyric tracking is constrained sequence alignment
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Prevents invented lyrics/open-ended jumps
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-007
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone PositionCore independent of UI/audio hardware
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Makes replay testing and deterministic evaluation possible
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-008
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Repeated lyric text has distinct identities
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Allows correct section disambiguation
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-009
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Event Bus optional for first releases
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Prevents cross-product integration becoming a V1 blocker
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone ADR-010
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone M5 hardware is POC/reference only
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Keeps production compute/electronics decision open
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs36 \cf4 13. Key architecture risks and mitigations\
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrt\brdrnil \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalc \clcbpat5 \clwWidth3240\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalc \clcbpat5 \clwWidth3220\clftsWidth3 \clheight200 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\f1\b\fs16 \cf3 Risk
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Architecture mitigation
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f1\b\fs16 \cf3 \up0 \nosupersub \ulnone Validation
+\f2\b0\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Stage noise reduces speech accuracy
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone direct command mic, wake/VAD, restricted fast grammar, local model benchmark
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone noise/ad-lib corpus
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Repeated chorus causes wrong lyric jump
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone bounded candidate window, section graph, distance penalty, hysteresis, two-hit distant jump
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone adversarial labelled corpus + live hours
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone AI load affects audio latency
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone physical separation of DSP; no inference/allocations/locks in audio callback
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone max-load loopback p95 <5 ms
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone POC compute differs from production
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone hardware abstraction + stable contracts
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone swap simulator/target adapters without domain changes
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight380 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone iPad interruption/disconnect
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone source state machine + persistent last committed state + manual fallback
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone cable pull, interruption, relaunch tests
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell \row
+
+\itap1\trowd \taflags1 \trgaph108\trleft-108 \trbrdrl\brdrnil \trbrdrt\brdrnil \trbrdrr\brdrnil 
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx2880
+\clvertalt \clshdrawnil \clwWidth3240\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx5760
+\clvertalt \clshdrawnil \clwWidth3220\clftsWidth3 \clheight400 \clbrdrt\brdrs\brdrw20\brdrcf3 \clbrdrl\brdrs\brdrw20\brdrcf3 \clbrdrb\brdrs\brdrw20\brdrcf3 \clbrdrr\brdrs\brdrw20\brdrcf3 \clpadt80 \clpadl80 \clpadb80 \clpadr80 \gaph\cellx8640
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone Schema drift
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone single contracts repo + compatibility tests + versioned migrations
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone \cell 
+\pard\intbl\itap1\pardeftab720\partightenfactor0
+
+\f3\fs15 \cf3 \up0 \nosupersub \ulnone CI contract matrix
+\f2\fs24 \cf0 \up0 \nosupersub \ulnone 
+\f0\fs36 \cf4 \up0 \nosupersub \ulnone \cell \lastrow\row
+\pard\pardeftab720\sl276\slmult1\sa480\partightenfactor0
+
+\fs19 \cf3 \
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 14. Architecture Definition of Done\
+\pard\tx20\tx360\pardeftab720\li360\fi-360\sl276\slmult1\sa200\partightenfactor0
+\ls2\ilvl0
+\f4\fs19 \cf3 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Every cross-module message has a versioned schema and at least one golden fixture.\
+\ls2\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Every probabilistic output is bounded and passes through an explicit deterministic authority before live actuation.\
+\ls2\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Blackstar audio and physical switching survive AI-host and network failure without audible interruption.\
+\ls2\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone LyricPilot remains useful under low confidence, audio loss and restart; it never blanks the screen because the tracker is uncertain.\
+\ls2\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Every applied DSP transaction and committed lyric position can be reconstructed from event evidence and versioned assets.\
+\ls2\ilvl0
+\f4 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone Performance Lock preflight verifies all mandatory local assets and freezes mutable show state.\
+\pard\tx20\tx360\pardeftab720\li360\fi-360\sl276\slmult1\sa480\partightenfactor0
+\ls2\ilvl0
+\f4 \cf3 \up0 \nosupersub \ulnone {\listtext	\uc0\u8226 	}
+\f0 \up0 \nosupersub \ulnone POC acceptance metrics are generated automatically from repeatable corpora/harnesses rather than subjective demonstration alone.\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 15. Recommended repository layout\
+\pard\pardeftab720\li216\sl276\slmult1\partightenfactor0
+
+\fs14 \cf3 blackstar-performance-platform/\
+  contracts/\
+  packages/speech/\
+  packages/intent/\
+  packages/tone-ontology/\
+  packages/tone-compiler/\
+  packages/validator/\
+  packages/dsp-bridge/\
+  packages/performance-domain/\
+  packages/event-store/\
+  packages/event-bus/\
+  simulators/dsp/\
+  tests/golden-intents/\
+  tests/failure-injection/\
+  tools/latency-harness/\
+\
+LyricPilot/\
+  App/\
+  Packages/AudioEngine/\
+  Packages/SpeechFeatures/\
+  Packages/PositionCore/\
+  Packages/SongMap/\
+  Packages/DisplayEngine/\
+  Packages/CommandRecognizer/\
+  Packages/MIDI/\
+  Packages/EventLog/\
+  Packages/EventBusAdapter/\
+  TestCorpus/\
+  Tests/Unit/\
+  Tests/Replay/\
+  Tests/Soak/\
+\
+performance-contracts/\
+  json-schema/\
+  protobuf/\
+  fixtures/\
+\pard\pardeftab720\li216\sl276\slmult1\sa480\partightenfactor0
+\cf3   compatibility-tests/\
+\pard\pardeftab720\sl276\slmult1\partightenfactor0
+
+\fs36 \cf4 Appendix A. Source alignment\
+\pard\pardeftab720\sl276\slmult1\sa200\partightenfactor0
+
+\fs19 \cf3 This plan is an engineering expansion of the uploaded Blackstar PID. It preserves the PID's explicit decisions: two independently gateable products; local-first live operation; deterministic safety boundaries; SQLite for the Blackstar POC event/performance store; native Swift/SwiftUI modularity for LyricPilot; a model-agnostic intent API; constrained Song Map position tracking; and an optional shared Performance Event Bus.}
