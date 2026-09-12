@@ -1,0 +1,66 @@
+{
+  "ml_schema_version": "1.0",
+  "principle": "Probabilistic components produce bounded evidence; deterministic authorities commit live actions.",
+  "blackstar_intent_model": {
+    "inputs": [
+      "transcript",
+      "performance_context",
+      "current_tone_summary"
+    ],
+    "outputs": "BlackstarIntent v1 only",
+    "prohibited_outputs": [
+      "raw DSP writes",
+      "untyped commands"
+    ],
+    "metrics": [
+      "intent exact-match",
+      "ontology-delta F1",
+      "unsafe-output rate",
+      "p95 inference latency"
+    ],
+    "gating": "schema valid AND confidence policy satisfied; then deterministic compiler + validator"
+  },
+  "lyricpilot_position_model": {
+    "inputs": [
+      "partial tokens",
+      "token timing/confidence",
+      "phonetic features",
+      "acoustic features",
+      "prior position",
+      "SongMap candidate window",
+      "tempo/timing",
+      "rehearsal history"
+    ],
+    "features": [
+      "transcription_similarity",
+      "phonetic_similarity",
+      "word_order_score",
+      "position_prior",
+      "tempo_alignment",
+      "history_prior",
+      "section_distance"
+    ],
+    "outputs": "PositionHypothesis v1",
+    "commit_authority": "state machine + jump-protection policy",
+    "metrics": [
+      "next lyric readiness >=99%",
+      "p95 update latency <=250ms",
+      "incorrect section jump <1/10 live hours",
+      "zero blank screens over >=2h"
+    ]
+  },
+  "model_bundle": {
+    "required_metadata": [
+      "model_id",
+      "model_kind",
+      "version",
+      "checksum",
+      "training_or_calibration_data_version",
+      "feature_schema_version",
+      "evaluation_metrics",
+      "device_profile",
+      "approval_status"
+    ],
+    "deployment": "local, preflighted, checksummed, frozen during Performance Lock"
+  }
+}
